@@ -1,4 +1,32 @@
 function Shape() {
+	this.id = function (val) {
+		if (val === undefined) {
+			if (this._id === undefined) {
+    			return '';
+    		} else {
+    			return this._id;
+    		}
+		} else {
+			this._id = val;
+		}
+
+		return this;
+	};
+
+	this.class = function (val) {
+		if (val === undefined) {
+			if (this._class === undefined) {
+    			return '';
+    		} else {
+    			return this._class;
+    		}
+		} else {
+			this._class = val;
+		}
+
+		return this;
+	};
+
 	this.width = function (val) {
 		if (val === undefined) {
 			return this._width;
@@ -158,12 +186,40 @@ function Shape() {
             el.setAttribute(k, attrs[k]);
         return el;
     }
+
+    this.style = function (val) {
+    	if (val === undefined) {
+    		if (this._style === undefined) {
+    			return '';
+    		} else {
+    			return this._style;
+    		}
+		} else {
+			this._style = val;
+		}
+
+		return this;
+    }
+
+    this.fontsize = function (val) {
+    	if (val === undefined) {
+    		if (this._fontsize === undefined) {
+    			return '';
+    		} else {
+    			return this._fontsize;
+    		}
+		} else {
+			this._fontsize = val;
+		}
+
+		return this;
+    }
 };
 
 function Line () {
 	this.draw = function (parent) {
 		var svg = this.makeSVG('line', {x1: this.x1(), y1: this.y1(), x2: this.x2(), 
-			y2: this.y2(), stroke: this.stroke(), 'stroke-width': this.strokeWidth()});
+			y2: this.y2(), stroke: this.stroke(), 'stroke-width': this.strokeWidth(), style: this.style()});
 		parent.appendChild(svg);
 		return this;
 	};
@@ -174,7 +230,7 @@ function Line () {
 function Square () {
 	this.draw = function (parent) {
 		var svg = this.makeSVG('rect', {fill: this.fill(), x: this.x(), y: this.y(), 
-			width: this.width(), height: this.height()});
+			width: this.width(), height: this.height(), style: this.style()});
 		parent.appendChild(svg);
 		return this;
 	};
@@ -216,12 +272,12 @@ function Square () {
 function Rectangle () {
 	this.draw = function (parent) {
 		var svg = this.makeSVG('rect', {fill: this.fill(), x: this.x(), y: this.y(), 
-			width: this.width(), height: this.height()});
+			width: this.width(), height: this.height(), style: this.style()});
 		parent.appendChild(svg);
 		return this;
 	};
 
-		this.width = function (val) {
+	this.width = function (val) {
 		if (val === undefined) {
 			return this._width;
 		} else {
@@ -258,7 +314,7 @@ function Rectangle () {
 function Circle () {
 	this.draw = function (parent) {
 		var svg = this.makeSVG('circle', {fill: this.fill(), cx: this.cx(), cy: this.cy(), 
-			r: this.width()});
+			r: this.width(), style: this.style(), id: this.id(), class: this.class()});
 		parent.appendChild(svg);
 		return this;
 	};
@@ -278,8 +334,8 @@ function Circle () {
 
 function Text () {
 	this.draw = function (parent) {
-		var svg = this.makeSVG('text', {x: this.x(), y: this.y(), cy: this.cy(), 
-			r: this.width()});
+		var svg = this.makeSVG('text', {x: this.x(), y: this.y(),
+			style: this.style(), 'font-size': this.fontsize()});
 		var textNode = document.createTextNode(this.text());
      	svg.appendChild(textNode);
 

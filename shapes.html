@@ -1,41 +1,151 @@
 <html>
    <head>
-      <script src="./solution/shapes.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.9/d3.min.js"></script>
+      <style>
+         svg {
+            border: 1px solid black;
+         }
+
+         .hidden {
+            display: none;
+         }
+
+         body { font-size: 80%; font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif; }
+         ul#tabs { list-style-type: none; margin: 30px 0 0 0; padding: 0 0 0.3em 0; }
+         ul#tabs li { display: inline; }
+         ul#tabs li a { color: #42454a; background-color: #dedbde; border: 1px solid #c9c3ba; border-bottom: none; padding: 0.3em; text-decoration: none; }
+         ul#tabs li a:hover { background-color: #f1f0ee; }
+         ul#tabs li a.selected { color: #000; background-color: #f1f0ee; font-weight: bold; padding: 0.7em 0.3em 0.38em 0.3em; }
+         div.tabContent { border: 1px solid #c9c3ba; padding: 0.5em; background-color: #f1f0ee; }
+         div.tabContent.hide { display: none; }
+
+         div.tabContent .inner {
+            margin: auto;
+            width: 810px;;
+         }
+
+         #city {
+            text-align: center;
+            float: left;
+         }
+
+         #city .city_name {
+            
+         }
+      </style>
    </head>
-   <body>
-      <svg id="container" width="800" height="600" ></svg>
+   <body onload="init()">
+      <div id="shapes" class="hidden">
+         <ul id="tabs">
+           <li><a href="#Part1">Part 1</a></li>
+           <li><a href="#Part2">Part 2</a></li>
+           <li><a href="#Part3">Part 3</a></li>
+         </ul>
+         <div class="tabContent" id="Part1">
+           <h2>Part 1</h2>
+           <div class="inner">
+            <svg id="container" width="800" height="600" ></svg>
+           </div>
+         </div>
+         <div class="tabContent" id="Part2">
+           <h2>Part 2</h2>
+           <div class="inner">
+               <svg id="container2" width="800" height="600" ></svg>
+           </div>
+         </div>
+         <div class="tabContent" id="Part3">
+           <h2>Part 3</h2>
+           <h3>Hover over location</h3>
+           <h3 id='city'>
+              <p id='city_name'></p>
+              <p id='city_population'></p>
+              <p id='city_diameter'></p>
+              <p id='other'></p>
+           </h3>
+           <div class="inner">
+               <svg id="container3" width="800" height="600" ></svg>
+           </div>
+         </div>
+      </div>
       <script type="text/javascript">
-         var svg = document.getElementById('container');
+         var tabLinks = new Array();
+         var contentDivs = new Array();
 
-         var l = new Line()
-            .x1(200).y1(50).x2(300).y2(100)
-            .stroke('purple').strokeWidth(10)
-            .draw(svg);
+          function init() {
 
-         var s = new Square()
-            .center(100, 100).width(100)
-            .fill('yellow')
-            .draw(svg);
+            // Grab the tab links and content divs from the page
+            var tabListItems = document.getElementById('tabs').childNodes;
+            for ( var i = 0; i < tabListItems.length; i++ ) {
+              if ( tabListItems[i].nodeName == "LI" ) {
+                var tabLink = getFirstChildWithTagName( tabListItems[i], 'A' );
+                var id = getHash( tabLink.getAttribute('href') );
+                tabLinks[id] = tabLink;
+                contentDivs[id] = document.getElementById( id );
+              }
+            }
 
-         var c = new Circle()
-            .center(100, 100).width(100)
-            .fill('red')
-            .draw(svg);
-        
-         var r = new Rectangle()
-            .center(200, 200).width(20).height(50)
-            .fill('blue')
-            .draw(svg);
+            // Assign onclick events to the tab links, and
+            // highlight the first tab
+            var i = 0;
 
-         new Text()
-            .x(400).y(50)
-            .text("Line " + l.x1() + "," + l.y1() + " > " + l.x2() + "," + l.y2() + " " + l.stroke())
-            .draw(svg);
-         
-         new Text()
-            .x(400).y(70)
-            .text("Square " + s.cx() + "," + s.cy() + " width " + s.width() + " " + s.fill())
-            .draw(svg);
-    </script>
+            for ( var id in tabLinks ) {
+              tabLinks[id].onclick = showTab;
+              tabLinks[id].onfocus = function() { this.blur() };
+              if ( i == 0 ) tabLinks[id].className = 'selected';
+              i++;
+            }
+
+            // Hide all content divs except the first
+            var i = 0;
+
+            for ( var id in contentDivs ) {
+              if ( i != 0 ) contentDivs[id].className = 'tabContent hide';
+              i++;
+            }
+
+            document.getElementById('shapes').classList.remove('hidden');
+          }
+
+          function showTab() {
+            var selectedId = getHash( this.getAttribute('href') );
+
+            // Highlight the selected tab, and dim all others.
+            // Also show the selected content div, and hide all others.
+            for ( var id in contentDivs ) {
+              if ( id == selectedId ) {
+                tabLinks[id].className = 'selected';
+                contentDivs[id].className = 'tabContent';
+              } else {
+                tabLinks[id].className = '';
+                contentDivs[id].className = 'tabContent hide';
+              }
+            }
+
+            // Stop the browser following the link
+            return false;
+          }
+
+          function getFirstChildWithTagName( element, tagName ) {
+            for ( var i = 0; i < element.childNodes.length; i++ ) {
+              if ( element.childNodes[i].nodeName == tagName ) return element.childNodes[i];
+            }
+          }
+
+          function getHash( url ) {
+            var hashPos = url.lastIndexOf ( '#' );
+            return url.substring( hashPos + 1 );
+          }
+      </script>
+      <script src="./solution/shapes.js"></script>
+      <script src="./solution/shapes_test.js"></script>
+
+      <script src="./data/co2.js"></script>
+      <script src="./solution/basic_Visualization.js"></script>
+
+      <script src="./data/latlong.js"></script>
+      <script src="./data/playfair.js"></script>
+      <script src="./solution/pretty_graph.js"></script>
+
    </body>
 </html>
